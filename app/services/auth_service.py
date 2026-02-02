@@ -5,58 +5,36 @@ from flask_jwt_extended import create_access_token
 class AuthService:
     @staticmethod
     def register_user(data):
-        email = data.get('email')
-        name = data.get('name')
-        password = data.get('password')
-
-        if not email or not name or not password:
-            return {"error": "Nome, email e senha são obrigatórios"}, 400
-
-        if User.query.filter_by(email=email).first():
-            return {"error": "Este email já está em uso"}, 400
-        
         try:
+            email = data.get('email')
+            if User.query.filter_by(email=email).first():
+                return {"error": "Email já cadastrado"}, 400
+            
             new_user = User(
-                name=name,
+                name=data.get('name'),
                 email=email
             )
-            new_user.set_password(password)
+            new_user.set_password(data.get('password'))
             
             db.session.add(new_user)
             db.session.commit()
             
-            return {
-                "message": "Usuário registrado com sucesso",
-                "user": {
-                    "id": new_user.id,
-                    "name": new_user.name,
-                    "email": new_user.email
-                }
-            }, 201
+            return {"message": "Usuário criado com sucesso", "id": new_user.id}, 201
         except Exception as e:
             db.session.rollback()
-            return {"error": f"Erro ao criar usuário: {str(e)}"}, 500
+            return {"error": f"Erro no registro: {str(e)}"}, 500
 
     @staticmethod
     def login_user(data):
-        email = data.get('email')
-        password = data.get('password')
-
-        if not email or not password:
-            return {"error": "Email e senha são obrigatórios"}, 400
-
-        user = User.query.filter_by(email=email).first()
-        
-        if user and user.check_password(password):
-            
-            access_token = create_access_token(identity=user.id)
-            return {
-                "access_token": access_token,
-                "user": {
-                    "id": user.id,
-                    "name": user.name,
-                    "email": user.email
-                }
-            }, 200
-            
-        return {"error": "E-mail ou senha incorretos"}, 401
+        try:
+            user = User.query.filter_by(email=data.get('email')).first()
+            if user and user.check_password(data.get('password')):
+    
+                access_token = create_access_token(identity=str(user.id))
+                return {
+                    "access_token": access_token,
+                    "user": {"id": user.id, "name": user.name}
+                }, 200
+            return {"error": "Credenciais inválidas"}, 401
+        except Exception as e:
+            return {"error": f"Erro na criptografia/login: {str(e)}"}, 500

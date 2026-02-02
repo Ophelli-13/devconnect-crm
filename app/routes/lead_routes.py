@@ -1,0 +1,21 @@
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.services.lead_service import LeadService
+
+lead_bp = Blueprint('leads', __name__, url_prefix='/leads')
+
+@lead_bp.route('/', methods=['POST'])
+@jwt_required()
+def create():
+
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    response, status = LeadService.create_lead(user_id, data)
+    return jsonify(response), status
+
+@lead_bp.route('/', methods=['GET'])
+@jwt_required()
+def list_leads():
+    user_id = get_jwt_identity()
+    response, status = LeadService.get_user_leads(user_id)
+    return jsonify(response), status
