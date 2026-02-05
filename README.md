@@ -163,19 +163,12 @@ devconnect-crm/
 ## 🛠️ Tecnologias Utilizadas
 
 -Python
-
--Flask
-
--Flask-JWT-Extended
-
--Flask-SQLAlchemy
-
--Flask-Migrate
-
--MySQL
-
--PyMySQL
-
--bcrypt
-
--python-dotenv
+flask
+flask-sqlalchemy
+flask-migrate
+python-dotenv
+flask-jwt-extended
+werkzeug
+pymysql
+cryptography
+google-genai

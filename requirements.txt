@@ -6,4 +6,4 @@ flask-jwt-extended
 werkzeug
 pymysql
 cryptography
-google-generativeai
+google-genai
